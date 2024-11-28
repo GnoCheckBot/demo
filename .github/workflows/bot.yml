@@ -48,7 +48,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: go.mod
+          go-version-file: contribs/github-bot/go.mod
 
       - name: Generate matrix from event
         id: pr-numbers
@@ -78,7 +78,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: go.mod
+          go-version-file: contribs/github-bot/go.mod
 
       - name: Run GitHub Bot
         working-directory: contribs/github-bot
