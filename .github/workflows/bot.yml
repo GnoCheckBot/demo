@@ -84,4 +84,4 @@ jobs:
         working-directory: contribs/github-bot
         env:
           GITHUB_TOKEN: ${{ secrets.GH_BOT_PAT }}
-        run: go run . -pr-numbers '${{ matrix.pr-number }}' -verbose
+        run: go run . check -pr-numbers '${{ matrix.pr-number }}' -verbose
