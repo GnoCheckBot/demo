@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/gnolang/gno/contribs/github-bot/internal/logger"
-	p "github.com/gnolang/gno/contribs/github-bot/internal/params"
+	"github-bot/internal/logger"
+	p "github-bot/internal/params"
 
 	"github.com/google/go-github/v64/github"
 )

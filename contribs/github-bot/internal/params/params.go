@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/gnolang/gno/contribs/github-bot/internal/utils"
+	"github-bot/internal/utils"
 	"github.com/sethvargo/go-githubactions"
 )
 
