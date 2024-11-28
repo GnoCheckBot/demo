@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github-bot/internal/logger"
 	"os"
 
-	"github-bot/internal/logger"
 	p "github-bot/internal/params"
 
 	"github.com/google/go-github/v64/github"
@@ -80,7 +80,7 @@ func (gh *GitHub) GetBotComment(prNum int) (*github.IssueComment, error) {
 		opts.Page = response.NextPage
 	}
 
-	return nil, errors.New("bot comment not found")
+	return nil, ErrBotCommentNotFound
 }
 
 // SetBotComment creates a bot's comment on the provided PR number

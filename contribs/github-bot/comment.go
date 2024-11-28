@@ -4,12 +4,11 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github-bot/internal/client"
+	"github-bot/internal/utils"
 	"regexp"
 	"strings"
 	"text/template"
-
-	"github-bot/internal/client"
-	"github-bot/internal/utils"
 
 	"github.com/google/go-github/v64/github"
 	"github.com/sethvargo/go-githubactions"
@@ -175,9 +174,9 @@ func handleCommentUpdate(gh *client.GitHub, actionCtx *githubactions.GitHubConte
 
 		// If teams specified in rule, check if actor is a member of one of them.
 		if len(teams) > 0 {
-			if gh.IsUserInTeams(actionCtx.Actor, teams) {
+			if !gh.IsUserInTeams(actionCtx.Actor, teams) { // If user not allowed
 				if !gh.DryRun {
-					gh.SetBotComment(previous, int(prNum))
+					gh.SetBotComment(previous, int(prNum)) // Restore previous state
 				}
 				return errors.New("checkbox edited by a user not allowed to")
 			}
