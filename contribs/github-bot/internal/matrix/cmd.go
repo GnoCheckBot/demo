@@ -15,8 +15,8 @@ type matrixFlags struct {
 	flagSet   *flag.FlagSet
 }
 
-func NewMatrixCmd(verbose bool) *commands.Command {
-	flags := &matrixFlags{verbose: verbose}
+func NewMatrixCmd() *commands.Command {
+	flags := &matrixFlags{}
 
 	return commands.NewCommand(
 		commands.Metadata{
@@ -39,6 +39,13 @@ func (flags *matrixFlags) RegisterFlags(fs *flag.FlagSet) {
 		"matrix-key",
 		"",
 		"key of the matrix to set in Github Actions output (required)",
+	)
+
+	fs.BoolVar(
+		&flags.verbose,
+		"verbose",
+		false,
+		"set logging level to debug",
 	)
 
 	flags.flagSet = fs

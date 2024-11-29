@@ -4,10 +4,10 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github-bot/internal/utils"
 	"os"
 	"time"
 
-	"github-bot/internal/utils"
 	"github.com/gnolang/gno/tm2/pkg/commands"
 	"github.com/sethvargo/go-githubactions"
 )
@@ -23,8 +23,8 @@ type checkFlags struct {
 	flagSet *flag.FlagSet
 }
 
-func NewCheckCmd(verbose bool) *commands.Command {
-	flags := &checkFlags{Verbose: verbose}
+func NewCheckCmd() *commands.Command {
+	flags := &checkFlags{}
 
 	return commands.NewCommand(
 		commands.Metadata{
@@ -82,6 +82,13 @@ func (flags *checkFlags) RegisterFlags(fs *flag.FlagSet) {
 		"timeout",
 		0,
 		"timeout after which the bot execution is interrupted",
+	)
+
+	fs.BoolVar(
+		&flags.Verbose,
+		"verbose",
+		false,
+		"set logging level to debug",
 	)
 
 	flags.flagSet = fs
