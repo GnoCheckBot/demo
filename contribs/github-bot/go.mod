@@ -9,7 +9,7 @@ require (
 	github.com/google/go-github/v64 v64.0.0
 	github.com/migueleliasweb/go-github-mock v1.0.1
 	github.com/sethvargo/go-githubactions v1.3.0
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.9.0
 	github.com/xlab/treeprint v1.2.0
 )
 

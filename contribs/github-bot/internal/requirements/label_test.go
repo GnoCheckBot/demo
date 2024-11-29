@@ -16,7 +16,7 @@ import (
 )
 
 func TestLabel(t *testing.T) {
-	// t.Parallel()
+	t.Parallel()
 
 	labels := []*github.Label{
 		{Name: github.String("notTheRightOne")},
@@ -38,14 +38,14 @@ func TestLabel(t *testing.T) {
 		{"label list doesn't contain label with dry-run", "label", labels, true, false},
 	} {
 		t.Run(testCase.name, func(t *testing.T) {
-			// t.Parallel()
+			t.Parallel()
 
 			requested := false
 			mockedHTTPClient := mock.NewMockedHTTPClient(
 				mock.WithRequestMatchHandler(
 					mock.EndpointPattern{
 						Pattern: "/repos/issues/0/labels",
-						Method:  "GET", // It looks like this mock package doesn't support mocking POST requests
+						Method:  "GET", // It looks like this mock package doesn't support mocking POST requests.
 					},
 					http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
 						requested = true

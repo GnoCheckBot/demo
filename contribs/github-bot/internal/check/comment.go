@@ -1,14 +1,16 @@
-package main
+package check
 
 import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github-bot/internal/client"
-	"github-bot/internal/utils"
 	"regexp"
 	"strings"
 	"text/template"
+
+	"github-bot/internal/client"
+	"github-bot/internal/config"
+	"github-bot/internal/utils"
 
 	"github.com/google/go-github/v64/github"
 	"github.com/sethvargo/go-githubactions"
@@ -156,12 +158,12 @@ func handleCommentUpdate(gh *client.GitHub, actionCtx *githubactions.GitHubConte
 		// Get teams allowed to edit this box from config.
 		var teams []string
 		found := false
-		_, manualRules := config(gh)
+		_, manualRules := config.Config(gh)
 
 		for _, manualRule := range manualRules {
-			if manualRule.description == key {
+			if manualRule.Description == key {
 				found = true
-				teams = manualRule.teams
+				teams = manualRule.Teams
 			}
 		}
 
@@ -174,9 +176,9 @@ func handleCommentUpdate(gh *client.GitHub, actionCtx *githubactions.GitHubConte
 
 		// If teams specified in rule, check if actor is a member of one of them.
 		if len(teams) > 0 {
-			if !gh.IsUserInTeams(actionCtx.Actor, teams) { // If user not allowed
+			if !gh.IsUserInTeams(actionCtx.Actor, teams) { // If user not allowed to check the boxes.
 				if !gh.DryRun {
-					gh.SetBotComment(previous, int(prNum)) // Restore previous state
+					gh.SetBotComment(previous, int(prNum)) // Then restore previous state.
 				}
 				return errors.New("checkbox edited by a user not allowed to")
 			}
