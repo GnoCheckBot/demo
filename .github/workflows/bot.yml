@@ -72,6 +72,13 @@ jobs:
     concurrency:
       # Prevent running concurrent jobs for a given PR number
       group: ${{ matrix.pr-number }}
+    outputs:
+      name: ${{ steps.github-bot.outputs.name }}
+      conclusion: ${{ steps.github-bot.outputs.conclusion }}
+      details_url: ${{ steps.github-bot.outputs.action_url }}
+      title: ${{ steps.github-bot.outputs.title }}
+      summary: ${{ steps.github-bot.outputs.summary }}
+      text_description: ${{ steps.github-bot.outputs.description }}
 
     steps:
       - name: Checkout code
@@ -104,6 +111,9 @@ jobs:
           echo "outputs: ${{ toJSON(needs.*.outputs) }}"
           echo "process-pr: ${{ toJSON(needs.process-pr) }}"
           echo "process-pr outputs: ${{ toJSON(needs.process-pr.outputs) }}"
+        id: pr-numbers
+        # Run one job for each PR to process
+        pr-number: ${{ fromJSON(needs.define-prs-matrix.outputs.pr-numbers) }}
 
       - name: Process PR succeeded
         if: ${{ needs.process-pr.result == 'success' }}

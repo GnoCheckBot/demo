@@ -252,18 +252,17 @@ func updatePullRequest(gh *client.GitHub, pr *github.PullRequest, content Commen
 	}
 
 	// Set GitHub Actions ouptut for Check Run creation in next job.
-	ga := githubactions.New()
-	ga.SetOutput("name", "GitHub Bot")
-	ga.SetOutput("details_url", comment.GetHTMLURL())
-	ga.SetOutput("title", "Merge Requirements")
-	ga.SetOutput("text_description", commentText)
+	githubactions.SetOutput("name", "GitHub Bot")
+	githubactions.SetOutput("details_url", comment.GetHTMLURL())
+	githubactions.SetOutput("title", "Merge Requirements")
+	githubactions.SetOutput("text_description", commentText)
 
 	if content.allSatisfied {
-		ga.SetOutput("conclusion", "success")
-		ga.SetOutput("summary", "All requirements are satisfied.")
+		githubactions.SetOutput("conclusion", "success")
+		githubactions.SetOutput("summary", "All requirements are satisfied.")
 	} else {
-		ga.SetOutput("conclusion", "failure")
-		ga.SetOutput("summary", "Some requirements are not satisfied yet.")
+		githubactions.SetOutput("conclusion", "failure")
+		githubactions.SetOutput("summary", "Some requirements are not satisfied yet.")
 
 	}
 
