@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/google/go-github/v64/github"
 	"github.com/sethvargo/go-githubactions"
@@ -251,30 +252,33 @@ func updatePullRequest(gh *client.GitHub, pr *github.PullRequest, content Commen
 		gh.Logger.Infof("Comment successfully updated on PR %d", pr.GetNumber())
 	}
 
-	// Prepare commit status content.
+	// Prepare check run content.
 	var (
-		context     = "Merge Requirements"
-		targetURL   = comment.GetHTMLURL()
-		state       = "failure"
-		description = "Some requirements are not satisfied yet. See bot comment."
+		conclusion  = "failure"
+		description = "Some requirements are not satisfied."
 	)
 
 	if content.allSatisfied {
-		state = "success"
+		conclusion = "success"
 		description = "All requirements are satisfied."
 	}
 
-	// Update or create commit status.
-	if _, _, err := gh.Client.Repositories.CreateStatus(
+	// Update or create check run.
+	if _, _, err := gh.Client.Checks.CreateCheckRun(
 		gh.Ctx,
 		gh.Owner,
 		gh.Repo,
-		pr.GetHead().GetSHA(),
-		&github.RepoStatus{
-			Context:     &context,
-			State:       &state,
-			TargetURL:   &targetURL,
-			Description: &description,
+		github.CreateCheckRunOptions{
+			Name:        "Merge Requirements",
+			HeadSHA:     pr.GetHead().GetSHA(),
+			DetailsURL:  github.String(comment.GetHTMLURL()),
+			Status:      github.String("completed"),
+			Conclusion:  github.String(conclusion),
+			CompletedAt: &github.Timestamp{Time: time.Now()},
+			Output: &github.CheckRunOutput{
+				Title:   github.String(description),
+				Summary: github.String(commentText),
+			},
 		}); err != nil {
 		return fmt.Errorf("unable to create status on PR %d: %w", pr.GetNumber(), err)
 	} else {
