@@ -88,11 +88,40 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_BOT_PAT }}
         run: go run . check -pr-numbers '${{ matrix.pr-number }}' -verbose
 
-  requirement:
-    runs-on: ubuntu-latest
+  # This job displays a GitHub Check Run using the output of the process-pr job
+  requirements:
+    name: Display Merge Requirements
     needs: process-pr
-    if: always()
+    if: always() # Run even if process-pr job failed
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write # Required by Check Run API
+
     steps:
-      - name: Print test result
-        # if: ${{ !(contains(needs.*.result, 'failure')) }}
-        run: echo "${{needs.process-pr.result}}"
+      - name: Process PR succeeded
+        if: ${{ needs.process-pr.result == 'success' }}
+        uses: LouisBrunner/checks-action@v2.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ needs.process-pr.outputs.name }}
+          conclusion: ${{ needs.process-pr.outputs.conclusion }}
+          details_url: ${{ needs.process-pr.outputs.action_url }}
+          output: |
+            {
+              "title":"${{ steps.test.outputs.title }}",
+              "summary":"${{ steps.test.outputs.summary }}",
+              "text_description":"${{ steps.test.outputs.description }}"
+            }
+
+      - name: Process PR failed
+        if: ${{ needs.process-pr.result == 'failure' || needs.process-pr.result == 'cancelled' }}
+        uses: LouisBrunner/checks-action@v2.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: Name
+          conclusion: failure
+          output: |
+            {
+              "title":"title",
+              "summary":"summary",
+            }

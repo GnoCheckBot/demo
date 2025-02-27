@@ -11,7 +11,6 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
-	"time"
 
 	"github.com/google/go-github/v64/github"
 	"github.com/sethvargo/go-githubactions"
@@ -252,37 +251,19 @@ func updatePullRequest(gh *client.GitHub, pr *github.PullRequest, content Commen
 		gh.Logger.Infof("Comment successfully updated on PR %d", pr.GetNumber())
 	}
 
-	// Prepare check run content.
-	var (
-		conclusion  = "failure"
-		description = "Some requirements are not satisfied."
-	)
+	// Set GitHub Actions ouptut for Check Run creation in next job.
+	githubactions.SetOutput("name", "GitHub Bot")
+	githubactions.SetOutput("details_url", comment.GetHTMLURL())
+	githubactions.SetOutput("title", "Merge Requirements")
+	githubactions.SetOutput("text_description", commentText)
 
 	if content.allSatisfied {
-		conclusion = "success"
-		description = "All requirements are satisfied."
-	}
-
-	// Update or create check run.
-	if _, _, err := gh.Client.Checks.CreateCheckRun(
-		gh.Ctx,
-		gh.Owner,
-		gh.Repo,
-		github.CreateCheckRunOptions{
-			Name:        "Merge Requirements",
-			HeadSHA:     pr.GetHead().GetSHA(),
-			DetailsURL:  github.String(comment.GetHTMLURL()),
-			Status:      github.String("completed"),
-			Conclusion:  github.String(conclusion),
-			CompletedAt: &github.Timestamp{Time: time.Now()},
-			Output: &github.CheckRunOutput{
-				Title:   github.String(description),
-				Summary: github.String(commentText),
-			},
-		}); err != nil {
-		return fmt.Errorf("unable to create status on PR %d: %w", pr.GetNumber(), err)
+		githubactions.SetOutput("conclusion", "success")
+		githubactions.SetOutput("summary", "All requirements are satisfied.")
 	} else {
-		gh.Logger.Infof("Commit status successfully updated on PR %d", pr.GetNumber())
+		githubactions.SetOutput("conclusion", "failure")
+		githubactions.SetOutput("summary", "Some requirements are not satisfied yet.")
+
 	}
 
 	return nil
