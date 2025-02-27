@@ -90,6 +90,7 @@ jobs:
           go-version-file: contribs/github-bot/go.mod
 
       - name: Run GitHub Bot
+        id: github-bot
         working-directory: contribs/github-bot
         env:
           GITHUB_TOKEN: ${{ secrets.GH_BOT_PAT }}
