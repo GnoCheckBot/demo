@@ -53,11 +53,11 @@ func Config(gh *client.GitHub) ([]AutomaticCheck, []ManualCheck) {
 	}
 
 	manual := []ManualCheck{
-		{
-			Description: "The pull request description provides enough details",
-			If:          c.Not(c.AuthorInTeam(gh, "core-contributors")),
-			// Teams:       Teams{"core-contributors"},
-		},
+		// {
+		// 	Description: "The pull request description provides enough details",
+		// 	If:          c.Not(c.AuthorInTeam(gh, "core-contributors")),
+		// 	Teams:       Teams{"core-contributors"},
+		// },
 		{
 			Description: "Determine if infra needs to be updated before merging",
 			If: c.And(
