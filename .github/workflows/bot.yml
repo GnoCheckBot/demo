@@ -89,8 +89,8 @@ jobs:
         run: go run . check -pr-numbers '${{ matrix.pr-number }}' -verbose
 
   # This job displays a GitHub Check Run using the output of the process-pr job
-  requirements:
-    name: Display Merge Requirements
+  check-run:
+    name: Generate Check Run
     needs: process-pr
     if: always() # Run even if process-pr job failed
     runs-on: ubuntu-latest
@@ -98,6 +98,12 @@ jobs:
       pull-requests: write # Required by Check Run API
 
     steps:
+      - name: Print everything
+        run: |
+          echo "everything: ${{ needs.* }}"
+          echo "outputs: ${{ needs.*.outputs }}"
+          echo "process-pr: ${{ needs.process-pr }}"
+          echo "process-pr outputs: ${{ needs.process-pr.outputs }}"
       - name: Process PR succeeded
         if: ${{ needs.process-pr.result == 'success' }}
         uses: LouisBrunner/checks-action@v2.0.0
