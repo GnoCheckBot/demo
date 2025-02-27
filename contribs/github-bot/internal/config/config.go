@@ -36,27 +36,27 @@ func Config(gh *client.GitHub) ([]AutomaticCheck, []ManualCheck) {
 			If:          c.Always(),
 			Then:        r.UpToDateWith(gh, r.PR_BASE),
 		},
-		{
-			Description: "Changes to 'docs' folder must be reviewed/authored by at least one devrel and one tech-staff",
-			If:          c.FileChanged(gh, "^docs/"),
-			Then: r.Or(
-				r.And(
-					r.AuthorInTeam(gh, "devrels"),
-					r.ReviewByTeamMembers(gh, "tech-staff", 1),
-				),
-				r.And(
-					r.AuthorInTeam(gh, "tech-staff"),
-					r.ReviewByTeamMembers(gh, "devrels", 1),
-				),
-			),
-		},
+		// {
+		// 	Description: "Changes to 'docs' folder must be reviewed/authored by at least one devrel and one tech-staff",
+		// 	If:          c.FileChanged(gh, "^docs/"),
+		// 	Then: r.Or(
+		// 		r.And(
+		// 			r.AuthorInTeam(gh, "devrels"),
+		// 			r.ReviewByTeamMembers(gh, "tech-staff", 1),
+		// 		),
+		// 		r.And(
+		// 			r.AuthorInTeam(gh, "tech-staff"),
+		// 			r.ReviewByTeamMembers(gh, "devrels", 1),
+		// 		),
+		// 	),
+		// },
 	}
 
 	manual := []ManualCheck{
 		{
 			Description: "The pull request description provides enough details",
 			If:          c.Not(c.AuthorInTeam(gh, "core-contributors")),
-			Teams:       Teams{"core-contributors"},
+			// Teams:       Teams{"core-contributors"},
 		},
 		{
 			Description: "Determine if infra needs to be updated before merging",
@@ -70,7 +70,7 @@ func Config(gh *client.GitHub) ([]AutomaticCheck, []ManualCheck) {
 					c.FileChanged(gh, `^.github/workflows/portal-loop\.yml$`),
 				),
 			),
-			Teams: Teams{"devops"},
+			// Teams: Teams{"devops"},
 		},
 	}
 
