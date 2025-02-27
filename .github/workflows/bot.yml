@@ -100,10 +100,11 @@ jobs:
     steps:
       - name: Print everything
         run: |
-          echo "everything: ${{ needs.* }}"
-          echo "outputs: ${{ needs.*.outputs }}"
-          echo "process-pr: ${{ needs.process-pr }}"
-          echo "process-pr outputs: ${{ needs.process-pr.outputs }}"
+          echo "everything: ${{ toJSON(needs.*) }}"
+          echo "outputs: ${{ toJSON(needs.*.outputs) }}"
+          echo "process-pr: ${{ toJSON(needs.process-pr) }}"
+          echo "process-pr outputs: ${{ toJSON(needs.process-pr.outputs) }}"
+
       - name: Process PR succeeded
         if: ${{ needs.process-pr.result == 'success' }}
         uses: LouisBrunner/checks-action@v2.0.0
