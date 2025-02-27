@@ -111,9 +111,6 @@ jobs:
           echo "outputs: ${{ toJSON(needs.*.outputs) }}"
           echo "process-pr: ${{ toJSON(needs.process-pr) }}"
           echo "process-pr outputs: ${{ toJSON(needs.process-pr.outputs) }}"
-        id: pr-numbers
-        # Run one job for each PR to process
-        pr-number: ${{ fromJSON(needs.define-prs-matrix.outputs.pr-numbers) }}
 
       - name: Process PR succeeded
         if: ${{ needs.process-pr.result == 'success' }}
