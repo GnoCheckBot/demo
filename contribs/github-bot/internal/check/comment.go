@@ -3,6 +3,7 @@ package check
 import (
 	"bytes"
 	_ "embed"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github-bot/internal/client"
@@ -235,6 +236,15 @@ func generateComment(content CommentContent) (string, error) {
 	return commentBytes.String(), nil
 }
 
+type CheckRunInfo struct {
+	Name        string `json:"name"`
+	Conclusion  string `json:"conclusion"`
+	DetailsURL  string `json:"details_url"`
+	Title       string `json:"title"`
+	Summary     string `json:"summary"`
+	Description string `json:"description"`
+}
+
 // updatePullRequest updates or creates both the bot comment and the commit status.
 func updatePullRequest(gh *client.GitHub, pr *github.PullRequest, content CommentContent) error {
 	// Generate comment text content.
@@ -251,20 +261,30 @@ func updatePullRequest(gh *client.GitHub, pr *github.PullRequest, content Commen
 		gh.Logger.Infof("Comment successfully updated on PR %d", pr.GetNumber())
 	}
 
-	// Set GitHub Actions ouptut for Check Run creation in next job.
-	githubactions.SetOutput("name", "GitHub Bot")
-	githubactions.SetOutput("details_url", comment.GetHTMLURL())
-	githubactions.SetOutput("title", "Merge Requirements")
-	githubactions.SetOutput("text_description", commentText)
+	// Collect information to create a check run.
+	checkRun := CheckRunInfo{
+		Name:        "GitHub Bot",
+		DetailsURL:  comment.GetHTMLURL(),
+		Title:       "Merge Requirements",
+		Description: commentText,
+	}
 
 	if content.allSatisfied {
-		githubactions.SetOutput("conclusion", "success")
-		githubactions.SetOutput("summary", "All requirements are satisfied.")
+		checkRun.Conclusion = "success"
+		checkRun.Summary = "All requirements are satisfied."
 	} else {
-		githubactions.SetOutput("conclusion", "failure")
-		githubactions.SetOutput("summary", "Some requirements are not satisfied yet.")
-
+		checkRun.Conclusion = "failure"
+		checkRun.Summary = "Some requirements are not satisfied yet."
 	}
+
+	// Marshal check run info to JSON.
+	jsonBytes, err := json.Marshal(checkRun)
+	if err != nil {
+		return err
+	}
+
+	// Set check-run output for GitHub Actions.
+	githubactions.SetOutput("check-run", string(jsonBytes))
 
 	return nil
 }

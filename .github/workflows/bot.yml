@@ -73,12 +73,7 @@ jobs:
       # Prevent running concurrent jobs for a given PR number
       group: ${{ matrix.pr-number }}
     outputs:
-      name: ${{ steps.github-bot.outputs.name }}
-      conclusion: ${{ steps.github-bot.outputs.conclusion }}
-      details_url: ${{ steps.github-bot.outputs.action_url }}
-      title: ${{ steps.github-bot.outputs.title }}
-      summary: ${{ steps.github-bot.outputs.summary }}
-      text_description: ${{ steps.github-bot.outputs.description }}
+      check-run: ${{ steps.github-bot.outputs.check-run }}
 
     steps:
       - name: Checkout code
@@ -102,7 +97,8 @@ jobs:
     needs: process-pr
     if: always() # Run even if process-pr job failed
     runs-on: ubuntu-latest
-    permissions: write-all # Required by Check Run API
+    permissions:
+      checks: write # Required by Check Run API
 
     steps:
       - name: Print everything
@@ -117,14 +113,14 @@ jobs:
         uses: LouisBrunner/checks-action@v2.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          name: ${{ needs.process-pr.outputs.name }}
-          conclusion: ${{ needs.process-pr.outputs.conclusion }}
-          details_url: ${{ needs.process-pr.outputs.action_url }}
+          name: ${{ fromJSON(needs.process-pr.outputs.check-run).name }}
+          conclusion: ${{ fromJSON(needs.process-pr.outputs.check-run).conclusion }}
+          details_url: ${{ fromJSON(needs.process-pr.outputs.check-run).details_url }}
           output: |
             {
-              "title":"${{ steps.test.outputs.title }}",
-              "summary":"${{ steps.test.outputs.summary }}",
-              "text_description":"${{ steps.test.outputs.description }}"
+              "title":"${{ fromJSON(steps.test.outputs.check-run).title }}",
+              "summary":"${{ fromJSON(steps.test.outputs.check-run).summary }}",
+              "text_description":"${{ fromJSON(steps.test.outputs.check-run).description }}"
             }
 
       - name: Process PR failed
