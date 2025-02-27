@@ -102,8 +102,7 @@ jobs:
     needs: process-pr
     if: always() # Run even if process-pr job failed
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write # Required by Check Run API
+    permissions: write-all # Required by Check Run API
 
     steps:
       - name: Print everything
