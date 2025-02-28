@@ -112,7 +112,7 @@ jobs:
           output: |
             {
               "title":"${{ fromJSON(needs.process-pr.outputs.check-run).title }}",
-              "summary":"${{ fromJSON(needs.process-pr.outputs.check-run).summary }}",
+              "summary":"${{ fromJSON(needs.process-pr.outputs.check-run).summary }}"
             }
 
       - name: Process PR failed
