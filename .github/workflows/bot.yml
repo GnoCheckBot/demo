@@ -106,9 +106,9 @@ jobs:
         uses: LouisBrunner/checks-action@v2.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          name: ${{ fromJSON(needs.process-pr.outputs.check-run).name }}
-          conclusion: ${{ fromJSON(needs.process-pr.outputs.check-run).conclusion }}
-          details_url: ${{ fromJSON(needs.process-pr.outputs.check-run).details_url }}
+          name: '${{ fromJSON(needs.process-pr.outputs.check-run).name }}'
+          conclusion: '${{ fromJSON(needs.process-pr.outputs.check-run).conclusion }}'
+          details_url: '${{ fromJSON(needs.process-pr.outputs.check-run).details_url }}'
           output: |
             {
               "title":"${{ fromJSON(needs.process-pr.outputs.check-run).title }}",
