@@ -113,7 +113,6 @@ jobs:
             {
               "title":"${{ fromJSON(needs.process-pr.outputs.check-run).title }}",
               "summary":"${{ fromJSON(needs.process-pr.outputs.check-run).summary }}",
-              "text_description":"${{ fromJSON(needs.process-pr.outputs.check-run).description }}"
             }
 
       - name: Process PR failed

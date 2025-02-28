@@ -237,12 +237,12 @@ func generateComment(content CommentContent) (string, error) {
 }
 
 type CheckRunInfo struct {
-	Name        string `json:"name"`
-	Conclusion  string `json:"conclusion"`
-	DetailsURL  string `json:"details_url"`
-	Title       string `json:"title"`
-	Summary     string `json:"summary"`
-	Description string `json:"description"`
+	Name       string `json:"name"`
+	Conclusion string `json:"conclusion"`
+	DetailsURL string `json:"details_url"`
+	Title      string `json:"title"`
+	Summary    string `json:"summary"`
+	// Description string `json:"description"`
 }
 
 // updatePullRequest updates or creates both the bot comment and the commit status.
@@ -263,18 +263,18 @@ func updatePullRequest(gh *client.GitHub, pr *github.PullRequest, content Commen
 
 	// Collect information to create a check run.
 	checkRun := CheckRunInfo{
-		Name:        "GitHub Bot",
-		DetailsURL:  comment.GetHTMLURL(),
-		Title:       "Merge Requirements",
-		Description: "Test",
+		Name:       "Merge Requirements",
+		DetailsURL: comment.GetHTMLURL(),
+		Summary:    "Test",
+		// Description: "Test",
 	}
 
 	if content.allSatisfied {
 		checkRun.Conclusion = "success"
-		checkRun.Summary = "All requirements are satisfied."
+		checkRun.Title = "All requirements are satisfied."
 	} else {
 		checkRun.Conclusion = "failure"
-		checkRun.Summary = "Some requirements are not satisfied yet."
+		checkRun.Title = "Some requirements are not satisfied yet."
 	}
 
 	// Marshal check run info to JSON.
