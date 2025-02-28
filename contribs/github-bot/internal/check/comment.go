@@ -266,7 +266,7 @@ func updatePullRequest(gh *client.GitHub, pr *github.PullRequest, content Commen
 		Name:        "GitHub Bot",
 		DetailsURL:  comment.GetHTMLURL(),
 		Title:       "Merge Requirements",
-		Description: commentText,
+		Description: "Test",
 	}
 
 	if content.allSatisfied {
