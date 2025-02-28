@@ -73,7 +73,7 @@ jobs:
       # Prevent running concurrent jobs for a given PR number
       group: ${{ matrix.pr-number }}
     outputs:
-      check-run: ${{ steps.github-bot.outputs.check-run }}
+      requirements: ${{ steps.run-bot.outputs.requirements }}
 
     steps:
       - name: Checkout code
@@ -85,45 +85,40 @@ jobs:
           go-version-file: contribs/github-bot/go.mod
 
       - name: Run GitHub Bot
-        id: github-bot
         working-directory: contribs/github-bot
+        id: run-bot
         env:
           GITHUB_TOKEN: ${{ secrets.GH_BOT_PAT }}
         run: go run . check -pr-numbers '${{ matrix.pr-number }}' -verbose
 
-  # This job displays a GitHub Check Run using the output of the process-pr job
-  check-run:
-    name: Generate Check Run
+  # This job is used as a reference to create a branch protection rule in GitHub
+  # settings. The bot displays its 'Merge Requirements' using a commit status which
+  # can't be used to enforce branch protection rules.
+  branch-protection:
+    name: Branch protection check
     needs: process-pr
     if: always() # Run even if process-pr job failed
     runs-on: ubuntu-latest
-    permissions:
-      checks: write # Required by Check Run API
 
     steps:
-      - name: Process PR succeeded
-        if: ${{ needs.process-pr.result == 'success' }}
-        uses: LouisBrunner/checks-action@v2.0.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: '${{ fromJSON(needs.process-pr.outputs.check-run).name }}'
-          conclusion: '${{ fromJSON(needs.process-pr.outputs.check-run).conclusion }}'
-          details_url: '${{ fromJSON(needs.process-pr.outputs.check-run).details_url }}'
-          output: |
-            {
-              "title":"${{ fromJSON(needs.process-pr.outputs.check-run).title }}",
-              "summary":"${{ fromJSON(needs.process-pr.outputs.check-run).summary }}"
-            }
+      - name: Print debug
+        if: ${{ needs.process-pr.result != 'skipped' }}
+        run: |
+          echo "process-pr: ${{ toJSON(needs.process-pr) }}"
+          echo "process-pr result: ${{ toJSON(needs.process-pr.result) }}"
+          echo "process-pr outputs: ${{ toJSON(needs.process-pr.outputs) }}"
+          echo "process-pr outputs req: ${{ toJSON(needs.process-pr.outputs.requirements) }}"
 
-      - name: Process PR failed
-        if: ${{ needs.process-pr.result == 'failure' || needs.process-pr.result == 'cancelled' }}
-        uses: LouisBrunner/checks-action@v2.0.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: Name
-          conclusion: failure
-          output: |
-            {
-              "title":"title",
-              "summary":"summary",
-            }
+      - name: Validate GitHub Bot result
+        if: ${{ needs.process-pr.result != 'skipped' }}
+        run: |
+          if [ "${{ needs.process-pr.result }}" != "success" ]; then
+            echo "GitHub Bot failed to process PR(s)."
+            exit 1
+          fi
+          if [ "${{ needs.process-pr.outputs.requirements }}" != "success" ]; then
+            echo "GitHub Bot merge requirements not met."
+            exit 1
+          fi
+          echo "GitHub Bot merge requirements met."
+          exit 0

@@ -3,7 +3,6 @@ package check
 import (
 	"bytes"
 	_ "embed"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github-bot/internal/client"
@@ -236,15 +235,6 @@ func generateComment(content CommentContent) (string, error) {
 	return commentBytes.String(), nil
 }
 
-type CheckRunInfo struct {
-	Name       string `json:"name"`
-	Conclusion string `json:"conclusion"`
-	DetailsURL string `json:"details_url"`
-	Title      string `json:"title"`
-	Summary    string `json:"summary"`
-	// Description string `json:"description"`
-}
-
 // updatePullRequest updates or creates both the bot comment and the commit status.
 func updatePullRequest(gh *client.GitHub, pr *github.PullRequest, content CommentContent) error {
 	// Generate comment text content.
@@ -261,30 +251,39 @@ func updatePullRequest(gh *client.GitHub, pr *github.PullRequest, content Commen
 		gh.Logger.Infof("Comment successfully updated on PR %d", pr.GetNumber())
 	}
 
-	// Collect information to create a check run.
-	checkRun := CheckRunInfo{
-		Name:       "Merge Requirements",
-		DetailsURL: comment.GetHTMLURL(),
-		Summary:    "Test",
-		// Description: "Test",
-	}
+	// Prepare commit status content.
+	var (
+		context     = "Merge Requirements"
+		targetURL   = comment.GetHTMLURL()
+		state       = "failure"
+		description = "Some requirements are not satisfied yet. See bot comment."
+	)
 
 	if content.allSatisfied {
-		checkRun.Conclusion = "success"
-		checkRun.Title = "All requirements are satisfied."
+		state = "success"
+		description = "All requirements are satisfied."
+	}
+
+	// Update or create commit status.
+	if _, _, err := gh.Client.Repositories.CreateStatus(
+		gh.Ctx,
+		gh.Owner,
+		gh.Repo,
+		pr.GetHead().GetSHA(),
+		&github.RepoStatus{
+			Context:     &context,
+			State:       &state,
+			TargetURL:   &targetURL,
+			Description: &description,
+		}); err != nil {
+		return fmt.Errorf("unable to create status on PR %d: %w", pr.GetNumber(), err)
 	} else {
-		checkRun.Conclusion = "failure"
-		checkRun.Title = "Some requirements are not satisfied yet."
+		gh.Logger.Infof("Commit status successfully updated on PR %d", pr.GetNumber())
 	}
 
-	// Marshal check run info to JSON.
-	jsonBytes, err := json.Marshal(checkRun)
-	if err != nil {
-		return err
-	}
-
-	// Set check-run output for GitHub Actions.
-	githubactions.SetOutput("check-run", string(jsonBytes))
+	// Output the requirements state to the GitHub Actions workflow for the
+	// branch protection job validation.
+	githubactions.SetOutput("requirements", state)
 
 	return nil
 }
