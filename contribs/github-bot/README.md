@@ -1,7 +1,7 @@
 # GitHub Bot
 
 ## Overview
-
+   
 The GitHub Bot is designed to automate and streamline the process of managing pull requests. It can automate certain tasks such as requesting reviews, assigning users or applying labels, but it also ensures that certain requirements are satisfied before allowing a pull request to be merged. Interaction with the bot occurs through a comment on the pull request, providing all the information to the user and allowing them to check boxes for the manual validation of certain rules.
 
 ## How It Works
