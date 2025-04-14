@@ -8,6 +8,7 @@ import (
 
 type Teams []string
 
+
 // Automatic check that will be performed by the bot.
 type AutomaticCheck struct {
 	Description string
