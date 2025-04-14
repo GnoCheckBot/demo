@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github-bot/internal/check"
 	"github-bot/internal/matrix"
 	"os"
@@ -11,7 +10,6 @@ import (
 )
 
 func main() {
-	fmt.Println("foo")
 	cmd := commands.NewCommand(
 		commands.Metadata{
 			ShortUsage: "github-bot <subcommand> [flags]",
